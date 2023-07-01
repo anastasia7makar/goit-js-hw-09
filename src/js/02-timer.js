@@ -1,4 +1,6 @@
 import flatpickr from 'flatpickr';
+import Notiflix from 'notiflix';
+
 import 'flatpickr/dist/flatpickr.min.css';
 
 const pickerEl = document.querySelector('input#datetime-picker');
@@ -18,7 +20,7 @@ let timerId = null;
 buttonStart.setAttribute('disabled', true);
 
 buttonStart.addEventListener('click', handleButtonStartClick);
-let selectedTime = 1;
+let selectedTime = 0;
 
 const options = {
   enableTime: true,
@@ -27,12 +29,13 @@ const options = {
   minuteIncrement: 1,
   onClose(selectedDates) {
     const result = selectedDates[0] - options.defaultDate;
-    if (result < 0 || result === 0) {
-      window.alert('Please choose a date in the future');
-    } else {
-      buttonStart.removeAttribute('disabled');
-      selectedTime = result;
+
+    if (result <= 0) {
+      return Notiflix.Notify.failure('Please choose a date in the future');
     }
+
+    buttonStart.removeAttribute('disabled');
+    selectedTime = result;
   },
 };
 
@@ -60,12 +63,15 @@ function addLeadingZero(value) {
 }
 
 function handleButtonStartClick() {
+  buttonStart.setAttribute('disabled', true);
+  pickerEl.setAttribute('disabled', true);
+
   timerId = setInterval(() => {
     selectedTime -= 1000;
 
     let countdownProp = convertMs(selectedTime);
 
-    daysEl.textContent = countdownProp.days;
+    daysEl.textContent = addLeadingZero(countdownProp.days);
 
     hoursEl.textContent = addLeadingZero(countdownProp.hours);
 
