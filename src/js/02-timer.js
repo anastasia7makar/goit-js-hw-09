@@ -5,9 +5,20 @@ const pickerEl = document.querySelector('input#datetime-picker');
 
 const buttonStart = document.querySelector('button[data-start]');
 
-console.log(buttonStart);
+const daysEl = document.querySelector('[data-days]');
+
+const hoursEl = document.querySelector('[data-hours]');
+
+const minutesEl = document.querySelector('[data-minutes]');
+
+const secondsEl = document.querySelector('[data-seconds]');
+
+let timerId = null;
 
 buttonStart.setAttribute('disabled', true);
+
+buttonStart.addEventListener('click', handleButtonStartClick);
+let selectedTime = 1;
 
 const options = {
   enableTime: true,
@@ -20,7 +31,7 @@ const options = {
       window.alert('Please choose a date in the future');
     } else {
       buttonStart.removeAttribute('disabled');
-      return result;
+      selectedTime = result;
     }
   },
 };
@@ -44,6 +55,28 @@ function convertMs(ms) {
   return { days, hours, minutes, seconds };
 }
 
-console.log(convertMs(2000));
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
+}
+
+function handleButtonStartClick() {
+  timerId = setInterval(() => {
+    selectedTime -= 1000;
+
+    let countdownProp = convertMs(selectedTime);
+
+    daysEl.textContent = countdownProp.days;
+
+    hoursEl.textContent = addLeadingZero(countdownProp.hours);
+
+    minutesEl.textContent = addLeadingZero(countdownProp.minutes);
+
+    secondsEl.textContent = addLeadingZero(countdownProp.seconds);
+
+    if (selectedTime < 1000) {
+      clearInterval(timerId);
+    }
+  }, 1000);
+}
 
 flatpickr(pickerEl, options);
